@@ -80,7 +80,13 @@ ret = JS_Call(ctx, executor, JS_UNDEFINED, 2, (JSValueConst *)args);
     }
    ```
    
-2. 异步操作时（以settimeout为例）TODO:
+2. 异步操作时（以settimeout为例）
+   ```c
+   js_os_setTimeout(JSContext *ctx, JSValueConst this_val,
+                                int argc, JSValueConst *argv)
+   ```
+   这个函数会把 settimeout 的两个参数(handler, time) 打包成一个time任务，等待后面 std_loop 中超时调度。
+   在调度时就和同步操作时一致
 
 
 #### `js_promise_resolve_function_call` 
@@ -227,6 +233,31 @@ static int js_create_resolving_functions(JSContext *ctx,
 2. 创建两个 `obj` 并且设置好它们的数据 `JSPromiseFunctionData` 
 3. 每个 `presolved` 都指向 `sr`
    ![resolve_funcs](promise/resolve_funcs.png)
+
+#### [`js_std_loop`]
+```c
+for(;;) {
+        /* execute the pending jobs */
+        for(;;) {
+            err = JS_ExecutePendingJob(JS_GetRuntime(ctx), &ctx1);
+            if (err <= 0) {
+                if (err < 0) {
+                    js_std_dump_error(ctx1);
+                }
+                break;
+            }
+        }
+
+        if (!os_poll_func || os_poll_func(ctx))
+            break;
+    }
+```
+这个函数比较简单，首先尝试执行所有peding中的任务，如果任务队列为空就跳出；然后看是否定义了自定义的 `os_poll_func`
+函数，如果定义了就去执行一次 `os_poll_func` 
+在windows中
+首先检查 `ts->os_timers` 中是否含有超时的任务，如果有，就去执行这个任务，然后返回； 否则检查是否有io任务，如果有就去执行一个，然后返回；全都没有，sleep()上面统计的一个最小延时。
+TIPS: 这里可以和其他的网络库连接起来，比如libevent，把这里的加队列和唤醒机制放到libevent中去处理。
+
 
 ### 部分结构参考  
 
