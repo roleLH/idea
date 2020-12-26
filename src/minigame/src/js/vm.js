@@ -36,13 +36,9 @@ function rcn_vm(params = {}) {
       // Reset keyboard state
       vm.gamepad_state[0] = 0;
     });
-    this.dom_element = this.canvas.node;
 
   }
 
-  if(params.dom_element) {
-    this.dom_element = params.dom_element;
-  }
 
   this.reset();
   this.last_tick = 0;
@@ -83,7 +79,6 @@ rcn_vm.prototype.tick = function() {
     this.update();
   } else if(this.canvas) {
     this.canvas.flush();
-    this.canvas_test.flush();
 
   }
   if(this.worker && this.canvas) {
@@ -96,9 +91,6 @@ rcn_vm.prototype.update = function() {
   this.poll_gamepads();
 
   this.worker.postMessage({type: 'write', offset: rcn.mem_gamepad_offset, bytes: this.gamepad_state});
-  if(this.network) {
-    this.network.update(this);
-  }
   this.worker.postMessage({type: 'update'});
   this.worker.postMessage({type: 'read', name: 'audio', offset: rcn.mem_soundreg_offset, size: rcn.mem_soundreg_size});
 
@@ -117,9 +109,6 @@ rcn_vm.prototype.reset = function() {
   const vm = this;
   this.worker.onmessage = function(e) { vm.onmessage(e); }
   this.audio = new rcn_audio();
-  if(this.network) {
-    this.network.reset();
-  }
   this.gamepad_state = new Uint8Array(rcn.mem_gamepad_size);
   this.gamepad_mapping = [];
 
@@ -166,9 +155,7 @@ rcn_vm.prototype.load_bin = function(bin) {
 }
 
 rcn_vm.prototype.load_code = function(code) {
-  if(this.network) {
-    this.network.compute_game_hash(code);
-  }
+
   this.worker.postMessage({type:'code', code:code});
 }
 
@@ -222,11 +209,6 @@ rcn_vm.prototype.onmessage = function(e) {
       break;
     case 'error':
       this.kill();
-      break;
-    case 'network':
-      if(this.network) {
-        this.network.on_vm_message(this, e.data);
-      }
       break;
   }
 }
