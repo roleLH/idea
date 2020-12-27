@@ -32,3 +32,10 @@ function rcn_gl_create_array_buffer(gl, array) {
   gl.bufferData(gl.ARRAY_BUFFER, array, gl.STATIC_DRAW);
   return array_buffer;
 }
+
+
+export {
+  rcn_gl_create_shader,
+  rcn_gl_create_program,
+  rcn_gl_create_array_buffer,
+};

@@ -270,3 +270,5 @@ const rcn_instruments = [
     },
   },
 ];
+
+export default rcn_audio

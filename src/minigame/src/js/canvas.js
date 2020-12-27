@@ -1,6 +1,8 @@
 // Raccoon canvas
 'use strict';
 
+import {rcn_gl_create_program, rcn_gl_create_array_buffer} from "./gl.js"
+
 function rcn_canvas() {
   this.node = document.createElement('canvas');
   this.node.rcn_canvas = this;
@@ -16,8 +18,7 @@ function rcn_canvas() {
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
   this.texture = gl.createTexture();
-  this.other = gl.createTexture();
-  gl.bindTexture(gl.TEXTURE_2D, this.other);
+  gl.bindTexture(gl.TEXTURE_2D, this.texture);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -79,7 +80,7 @@ rcn_canvas.prototype.blit = function(x_start, y_start, width, height, pixels, pa
   }
 
   const gl = this.gl;
-  gl.bindTexture(gl.TEXTURE_2D, this.other);
+  gl.bindTexture(gl.TEXTURE_2D, this.texture);
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, this.width, this.height, 0, gl.RGB, gl.UNSIGNED_BYTE, this.img);
 }
 
@@ -126,12 +127,12 @@ rcn_canvas.prototype.flush = function() {
     const vp = this.compute_viewport();
     gl.viewport(vp.x, vp.y, vp.width, vp.height);
 
-    // // Set and upload texture
+    // Set and upload texture
     gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, this.other);
+    gl.bindTexture(gl.TEXTURE_2D, this.texture);
 
     gl.useProgram(this.img_program);
-    gl.uniform4i(gl.getUniformLocation(this.img_program, 'sampler'), 300, 40, 60, 90);
+    gl.uniform1i(gl.getUniformLocation(this.img_program, 'sampler'), 0);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo);
     gl.vertexAttribPointer(gl.getAttribLocation(this.img_program, 'vert'), 4, gl.FLOAT, false, 0, 0);
@@ -211,3 +212,5 @@ rcn_canvas.prototype.interaction = function(f) {
   this.node.addEventListener('mousedown', event_callback);
   this.node.addEventListener('mousemove', event_callback);
 }
+
+export default rcn_canvas

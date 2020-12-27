@@ -2,6 +2,8 @@
 // This is the worker script that gets executed inside a web worker
 'use strict';
 
+import {rcn} from "./config.js"
+
 function rcn_vm_worker_function(rcn) {
   const rcn_ram_size = rcn.ram_size;
   const rcn_mem_palette_offset = rcn.mem_palette_offset;
@@ -836,3 +838,5 @@ function rcn_vm_worker_function(rcn) {
 const rcn_vm_worker_url = URL.createObjectURL(new Blob(
   ['('+rcn_vm_worker_function.toString()+')('+JSON.stringify(rcn)+')'],
   {type: 'text/javascript'}));
+
+export default rcn_vm_worker_url

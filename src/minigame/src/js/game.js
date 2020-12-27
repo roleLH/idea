@@ -1,11 +1,12 @@
 // Raccoon game mode functionality
 'use strict';
 
+import rcn_vm from "./vm.js"
+
 function rcn_start_game_mode(params) {
   console.log('Starting game mode');
 
   document.body.classList.add('game');
-  document.body.classList.toggle('touch', rcn_is_touch_device);
   document.body.classList.toggle('export', !!params.export);
 
   const viewport_meta = document.createElement('meta');
@@ -21,22 +22,7 @@ function rcn_start_game_mode(params) {
   document.body.appendChild(vm.canvas.node);
   vm.canvas.node.focus();
 
-  if(rcn_is_touch_device) {
-    rcn_create_touch_controls(vm);
-    vm.set_gamepad_layout(0, rcn.gamepad_layout_abxy);
-    document.body.addEventListener('click', function() {
-      rcn_fullscreen(this);
-    });
-  }
 
-  if(!rcn_is_touch_device) {
-    const edit_link = document.createElement('a');
-    edit_link.id = 'edit_link';
-    edit_link.href = location.href + '&edit';
-    edit_link.innerText = 'Open in edit mode';
-    edit_link.target = '_blank';
-    document.body.appendChild(edit_link);
-  }
 }
 
 function rcn_create_touch_controls(vm) {
@@ -117,3 +103,6 @@ function rcn_create_touch_controls(vm) {
 
   document.body.appendChild(controls_div);
 }
+
+
+export default rcn_start_game_mode

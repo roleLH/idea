@@ -2,6 +2,11 @@
 // This is the client that spawns the web worker
 'use strict';
 
+import rcn_vm_worker_url from "./vm_worker.js"
+import {rcn} from "./config.js"
+import rcn_canvas from "./canvas.js"
+
+
 const rcn_keycode_to_gamepad = {
   37: 0, 39: 1, 38: 2, 40: 3, // Left Right Up Down
   88: 4, 67: 5, 86: 6, 66: 7, // X C V B
@@ -108,7 +113,7 @@ rcn_vm.prototype.reset = function() {
   this.worker = new Worker(rcn_vm_worker_url);
   const vm = this;
   this.worker.onmessage = function(e) { vm.onmessage(e); }
-  this.audio = new rcn_audio();
+  this.audio = null;
   this.gamepad_state = new Uint8Array(rcn.mem_gamepad_size);
   this.gamepad_mapping = [];
 
@@ -190,7 +195,7 @@ rcn_vm.prototype.set_gamepad_layout = function(player, layout) {
 }
 
 rcn_vm.prototype.set_volume = function(volume) {
-  this.audio.set_volume(volume);
+ // this.audio.set_volume(volume);
 }
 
 rcn_vm.prototype.onmessage = function(e) {
@@ -205,10 +210,12 @@ rcn_vm.prototype.onmessage = function(e) {
       }
       break;
     case 'audio':
-      this.audio.update(e.data.bytes);
+//      this.audio.update(e.data.bytes);
       break;
     case 'error':
       this.kill();
       break;
   }
 }
+
+export default rcn_vm

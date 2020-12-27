@@ -2,6 +2,8 @@
 // They can be saved, shared, and loaded into a raccoon VM
 'use strict';
 
+import {rcn} from "./config.js"
+
 const rcn_bin_token_regexp = /(\/\/.+|"((?:\\.|[^\\"])*)"|(\w+))/gm;
 const rcn_bin_non_tokens = {
   const: true, let: true,
@@ -155,3 +157,5 @@ rcn_bin.prototype.to_json_text = function() {
 async function rcn_bin_from_env() {
   return null;
 }
+
+export default rcn_bin
