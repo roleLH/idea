@@ -572,158 +572,6 @@ function rcn_vm_worker_function(rcn) {
     return _String.fromCodePoint([0xe000 + i]);
   }
 
-  // Raccoon network API
-  const _network = {
-    ready: false,
-    group_size: 0,
-    index: 0,
-  };
-  const _network_msg = function(msg) {
-    switch(msg.subtype) {
-      case 'input':
-        _network.input_queues[msg.index].push({input: msg.input, frame: msg.frame});
-        _network.input_queues[msg.index].sort((a, b) => a.frame - b.frame);
-        _network.frames[msg.index] = _max(_network.frames[msg.index], msg.client_frame);
-        _network.input_dirty = true;
-        break;
-      case 'state':
-        if(_network.frames[0] <= msg.frames[0]) {
-          ram.set(msg.bytes, rcn.mem_network_offset);
-          for(let i = 0; i < msg.input_queues.length; i++) {
-            if(_network.index != i) {
-              _network.input_queues[i] = msg.input_queues[i];
-            }
-          }
-          _network.frames = msg.frames;
-          _network.frame_offset_sum += _network.frames[0] - _network.frames[_network.index];
-          _network.frame_offset_div += 1;
-          _network.frame_offset = _Math.round(_network.frame_offset_sum / _network.frame_offset_div);
-          _network.confirmed_frame = msg.frame;
-          _network.state_frame = msg.frame;
-        }
-        break;
-      case 'update':
-        if(!_network.ready && msg.ready) {
-          _network.frame = 0;
-          _network.frame_offset_sum = 0;
-          _network.frame_offset_div = 0;
-          _network.frame_offset = 0;
-          _network.frames = (new _Array(_network.group_size)).fill(0);
-          _network.input_queues = [];
-          for(let i = 0; i < _network.group_size; i++) {
-            _network.input_queues.push([]);
-          }
-          _network.confirmed_state = ram.slice(rcn.mem_network_offset, rcn.mem_network_offset + rcn.mem_network_size);
-          _network.confirmed_frame = 0;
-          _network.state_frame = 0;
-        }
-        _network.ready = msg.ready;
-        _network.index = msg.index;
-        break;
-    }
-  }
-  const _network_update = function() {
-    if(!_network.ready) {
-      return;
-    }
-
-    const index = _network.index;
-    const current_input = ram.slice(rcn.mem_gamepad_offset, rcn.mem_gamepad_offset + rcn.mem_gamepad_size);
-    const latest_input = {
-      frame: _network.frame + _network.frame_offset,
-      input: current_input[0],
-    };
-    _network.input_queues[index].push(latest_input);
-
-    if(index == 0) {
-      _network.frames[0] = _network.frame;
-
-      if(_network.input_dirty) {
-        ram.set(_network.confirmed_state, rcn.mem_network_offset);
-        _network.state_frame = _network.confirmed_frame;
-        _network.input_dirty = false;
-      }
-    } else {
-      _postMessage({
-        type: 'network',
-        subtype: 'input',
-        client_frame: _network.frame,
-        frame: latest_input.frame,
-        input: latest_input.input,
-      });
-    }
-
-    const target_frame = _network.frame + _network.frame_offset;
-    while(_network.state_frame < target_frame) {
-      let confirmed_input = true;
-      for(let p = 0; p < _network.group_size; p++) {
-        const input_queue = _network.input_queues[p];
-        const input_found = input_queue.find(i => i.frame == _network.state_frame);
-        const last_input_found = input_queue.find(i => i.frame == _network.state_frame - 1);
-        let input = 0;
-        let last_input = 0;
-        if(input_found) {
-          input = input_found.input;
-        }
-        if(last_input_found) {
-          last_input = last_input_found.input;
-        }
-        if(!input_found || (_network.state_frame > 0 && !last_input_found)) {
-          confirmed_input = false;
-        }
-        ram[rcn.mem_gamepad_offset + p] = input;
-        ram[rcn.mem_gamepad_offset + p + rcn.gamepad_count] = last_input;
-      }
-
-      _execute_user_func(nupdate);
-
-      _network.state_frame += 1;
-
-      if(index == 0 && _network.state_frame == _network.confirmed_frame + 1 &&
-        (confirmed_input || _network.state_frame < target_frame-10)) {
-        _network.confirmed_state = ram.slice(rcn.mem_network_offset, rcn.mem_network_offset + rcn.mem_network_size);
-        _network.confirmed_frame = _network.state_frame;
-      }
-    }
-
-    // Remove obsolete input
-    for(let p in _network.input_queues) {
-      _network.input_queues[p] = _network.input_queues[p]
-        .filter(i => i.frame >= _network.confirmed_frame - 1);
-    }
-
-    if(index == 0) {
-      _postMessage({
-        type: 'network',
-        subtype: 'state',
-        bytes: _Array.from(_network.confirmed_state),
-        input_queues: _network.input_queues,
-        frames: _network.frames,
-        frame: _network.confirmed_frame,
-      });
-    }
-
-    ram.set(current_input, rcn.mem_gamepad_offset);
-
-    _network.frame += 1;
-  }
-  nconn = function(group_size = 0, group_match = 0) {
-    _network.ready = false;
-    _network.group_size = group_size;
-    _postMessage({
-      type: 'network',
-      subtype: 'connect',
-      group_size: group_size,
-      group_match: group_match,
-    });
-  }
-  nready = function() {
-    return _network.ready;
-  }
-  nindex = function() {
-    return _network.index;
-  }
-
   // Raccoon memory API
   memcpy = function(dst, src, len) {
     ram.copyWithin(dst, src, src + len);
@@ -815,13 +663,12 @@ function rcn_vm_worker_function(rcn) {
         break;
       case 'init': _execute_user_func(init); break;
       case 'update':
-        _network_update();
+
         _execute_user_func(update);
         _mus_update();
         sfx_update();
         break;
       case 'draw': _execute_user_func(draw); break;
-      case 'network': _network_msg(e.data); break;
       case 'write':
         ram.set(e.data.bytes, e.data.offset);
         break;

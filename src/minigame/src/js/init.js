@@ -18,14 +18,9 @@ function rcn_load_styles(styles) {
   }));
 }
 
-async function rcn_bootstrap_game_mode(params) {
-  console.log('Bootstrapping game mode');
-  rcn_start_game_mode(params);
-}
-
 window.addEventListener('load', async function() {
   await Promise.all([
-    rcn_load_styles(['reset', 'game'])])
+    rcn_load_styles(['game'])])
     .then(()=>{
     fetch('./minigame/src/test.rcn.json')
     .then(function(response) {
@@ -34,7 +29,7 @@ window.addEventListener('load', async function() {
     .then(function(test) {
       let static_bin = new rcn_bin();
       static_bin.from_json(test);
-      return rcn_bootstrap_game_mode({
+      return rcn_start_game_mode({
         bin: static_bin,
         export: true,
       });
