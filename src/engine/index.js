@@ -3,7 +3,7 @@ import "./polyfill/console.js";
 import "./polyfill/requestAnimationFrame.js";
 
 // external dependencies
-import "jay-extend";
+// import "jay-extend";
 // jay-extend does not properly export Jay
 var Jay = window.Jay;
 
@@ -23,7 +23,6 @@ import save from "./system/save.js";
 import timer from "./system/timer.js";
 import pool from "./system/pooling.js";
 import state from "./state/state.js";
-import level from "./level/level.js";
 
 // class definition
 import Color from "./math/color.js";
@@ -54,16 +53,7 @@ import ColorLayer from "./renderable/colorlayer.js";
 import ImageLayer from "./renderable/imagelayer.js";
 import Sprite from "./renderable/sprite.js";
 import GUI_Object from "./renderable/GUI.js";
-import TMXRenderer from "./level/tiled/renderer/TMXRenderer.js";
-import TMXOrthogonalRenderer from "./level/tiled/renderer/TMXOrthogonalRenderer.js";
-import TMXIsometricRenderer from "./level/tiled/renderer/TMXIsometricRenderer.js";
-import TMXHexagonalRenderer from "./level/tiled/renderer/TMXHexagonalRenderer.js";
-import TMXStaggeredRenderer from "./level/tiled/renderer/TMXStaggeredRenderer.js";
-import Tile from "./level/tiled/TMXTile.js";
-import TMXTileset from "./level/tiled/TMXTileset.js";
-import TMXTilesetGroup from "./level/tiled/TMXTilesetGroup.js";
-import TMXTileMap from "./level/tiled/TMXTileMap.js";
-import TMXLayer from "./level/tiled/TMXLayer.js";
+
 import Pointer from "./input/pointer.js";
 import Stage from "./state/stage.js";
 import Camera2d from "./camera/camera2d.js";
@@ -108,7 +98,6 @@ export {
     event,
     game,
     loader,
-    level,
     input,
     Math,
     plugin,
@@ -153,16 +142,6 @@ export {
     ImageLayer,
     Sprite,
     GUI_Object,
-    TMXRenderer,
-    TMXOrthogonalRenderer,
-    TMXIsometricRenderer,
-    TMXHexagonalRenderer,
-    TMXStaggeredRenderer,
-    Tile,
-    TMXTileset,
-    TMXTilesetGroup,
-    TMXTileMap,
-    TMXLayer,
     Pointer,
     Stage,
     Camera2d,
@@ -304,3 +283,5 @@ device.onReady(function () {
        boot();
     }
 });
+
+console.log("init succeed")

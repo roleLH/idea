@@ -3,10 +3,10 @@ import GLShader from "./glshader.js";
 import event from "./../../system/event.js";
 import { isPowerOfTwo } from "./../../math/math.js";
 
-import primitiveVertex from "./shaders/primitive.vert";
-import primitiveFragment from "./shaders/primitive.frag";
-import quadVertex from "./shaders/quad.vert";
-import quadFragment from "./shaders/quad.frag";
+// import primitiveVertex from "./shaders/primitive.vert";
+// import primitiveFragment from "./shaders/primitive.frag";
+// import quadVertex from "./shaders/quad.vert";
+// import quadFragment from "./shaders/quad.frag";
 
 
 

@@ -1,6 +1,5 @@
 import Entity from "./entity.js";
 import collision from "./../physics/collision.js";
-import level from "./../level/level.js";
 import game from "./../game.js";
 
 /**

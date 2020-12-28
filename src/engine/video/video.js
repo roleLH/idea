@@ -1,5 +1,5 @@
 import Vector2d from "./../math/vector2.js";
-import {warning} from "./../lang/deprecated";
+import {warning} from "./../lang/deprecated.js";
 import WebGLRenderer from "./webgl/webgl_renderer.js";
 import CanvasRenderer from "./canvas/canvas_renderer.js";
 import utils from "./../utils/utils.js";
