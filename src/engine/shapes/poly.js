@@ -1,7 +1,7 @@
-import earcut from "earcut";
+// import earcut from "./../utils/earcut.js";
 import Vector2d from "./../math/vector2.js";
 import pool from "./../system/pooling.js";
-import "jay-extend";
+ import "./../utils/jay-extend.js";
 
 /**
  * a polygon Object.<br>

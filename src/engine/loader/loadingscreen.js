@@ -95,18 +95,7 @@ var defaultLoadingScreen = new Stage({
             barHeight
         ), 1);
 
-        // melonJS logo
-        game.world.addChild(new IconLogo(
-            video.renderer.getWidth() / 2,
-            (video.renderer.getHeight() / 2) - (barHeight * 2) - 35
 
-        ), 2);
-
-        // melonJS text
-        game.world.addChild(new TextLogo(
-            video.renderer.getWidth(),
-            video.renderer.getHeight()
-        ), 2);
     }
 });
 

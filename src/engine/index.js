@@ -281,6 +281,12 @@ export function boot() {
 device.onReady(function () {
     if (skipAutoInit === false) {
        boot();
+
+       video.init(400, 600)
+        let rect = new Rect(20, 20, 20, 20)
+    //    rect.init(20, 20, 20, 20)
+        video.renderer.setColor("#00ff00")
+        video.renderer.fill(rect)
     }
 });
 

@@ -1,7 +1,7 @@
 import video from "./../video/video.js";
 import game from "./../game.js";
 import Camera2d from "./../camera/camera2d.js";
-import "jay-extend";
+// import "jay-extend";
 
 
 // a default camera instance to use across all stages

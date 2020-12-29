@@ -1,6 +1,6 @@
 import Vector2d from "./../math/vector2.js";
 import pool from "./../system/pooling.js";
-import "jay-extend";
+// import "jay-extend";
 
 /**
  * an ellipse Object

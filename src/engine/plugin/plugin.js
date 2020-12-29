@@ -1,6 +1,6 @@
 import utils from "./../utils/utils.js";
 import { version } from "./../index.js";
-import "jay-extend";
+//import "jay-extend";
 
 /**
  * This namespace is a container for all registered plugins.

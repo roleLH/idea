@@ -1,5 +1,5 @@
 // external import
-import MinPubSub from "minpubsub";
+ import MinPubSub from "./../utils/minpubsub.src.js";
 
 /**
 * an event system based on a micro publish/subscribe messaging framework

@@ -3,11 +3,11 @@
  * Copyright(c) 2011 Daniel Lamb <daniellmb.com>
  * MIT Licensed
  */
-(function (context) {
+
   var MinPubSub = {};
 
   // the topic/subscription hash
-  var cache = context.c_ || {}; //check for 'c_' cache for unit testing
+  var cache = {}; //check for 'c_' cache for unit testing
 
   MinPubSub.publish = function ( /* String */ topic, /* Array? */ args) {
     // summary: 
@@ -29,7 +29,7 @@
 
     //can change loop or reverse array if the order matters
     while (len--) {
-      subs[len].apply(context, args || []);
+      subs[len].apply({}, args || []);
     }
   };
 
@@ -76,20 +76,4 @@
     }
   };
 
-  // UMD definition to allow for CommonJS, AMD and legacy window
-  if (typeof module === 'object' && module.exports) {
-    // CommonJS, just export
-    module.exports = exports = MinPubSub;
-  } else if (typeof define === 'function' && define.amd) {
-    // AMD support
-    define(function () {
-      return MinPubSub;
-    });
-  } else if (typeof context === 'object') {
-    // If no AMD and we are in the browser, attach to window
-    context.publish = MinPubSub.publish;
-    context.subscribe = MinPubSub.subscribe;
-    context.unsubscribe = MinPubSub.unsubscribe;
-  }
-
-})(this.window);
+export default MinPubSub
