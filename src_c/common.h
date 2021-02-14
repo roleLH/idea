@@ -30,6 +30,28 @@ typedef enum ColorFormat {
     ABGR32 = 11
 } ColorFormat;
 
+
+typedef enum
+{
+    Palette,
+    Tile,
+    Map,
+    Cell,
+    Animation,
+    FullImage,
+    Text,
+    Video,
+    Sound,
+    Font,
+    Compressed,
+    Unknown,
+    System,
+    Script,
+    Pack,
+    Model3D,
+    Texture
+} Format;
+
 typedef enum TileForm {
     Lineal,
     Horizontal,
@@ -37,3 +59,39 @@ typedef enum TileForm {
 } TileForm;
 
 int NH_reader(NH_t* nh, FILE* file);
+
+typedef struct File{
+    u_int32_t offset;
+    u_int32_t size;
+    char* name;
+    u_int16_t id;
+    char* path;
+    Format format;
+    void* tag;
+} File_t;
+
+typedef struct Folder{
+    File_t* files;
+    Folder_t* folders;
+    u_int16_t id;
+    void* tag;
+    char* name;
+} Folder_t;
+
+
+
+#define alloc_struct(T, v)     \
+    do {                    \
+        T* v = (T*)malloc(sizeof(T)); \
+        memset(v, 0, sizeof(T));    \
+        v->id = (char*)malloc(sizeof(char) * 4);    \
+    } while(0)
+
+#define free_struct(v)  \
+    do {    \
+        if(v->id) { \
+            free(v->id);    \
+        }   \
+        free(v);    \
+    } while(0)
+
