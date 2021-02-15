@@ -65,16 +65,14 @@ typedef struct File{
     u_int32_t size;
     char* name;
     u_int16_t id;
-    char* path;
     Format format;
-    void* tag;
+    char* data;
 } File_t;
 
 typedef struct Folder{
     File_t* files;
     Folder_t* folders;
     u_int16_t id;
-    void* tag;
     char* name;
 } Folder_t;
 
