@@ -1,7 +1,9 @@
-#include "common.h"
-
+#include <stddef.h>
 #define BUFFER_SIZE 1024
 #define BUFFER_COUNT_MAX 1024
+#include "common.h"
+
+
 
 typedef struct {
     char** buffer;

@@ -1,6 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#ifndef COMMON_H_
+#define COMMON_H_
+
 typedef unsigned short u_int16_t;
 typedef unsigned int   u_int32_t;
 typedef int int32_t;
@@ -71,7 +74,7 @@ typedef struct File{
 
 typedef struct Folder{
     File_t* files;
-    Folder_t* folders;
+    struct Folder* folders;
     u_int16_t id;
     char* name;
 } Folder_t;
@@ -92,4 +95,7 @@ typedef struct Folder{
         }   \
         free(v);    \
     } while(0)
+
+
+#endif // COMMON_H_
 

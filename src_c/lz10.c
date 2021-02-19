@@ -66,12 +66,12 @@ size_t lz10_decompress(Stream* in, Stream* out) {
             if(disp > cur_outsize) {
                 printf("[lz10] error ....\n");
             }
-            int bug_idx = buffer_offset + buffer_len - disp;
+            int buf_idx = buffer_offset + buffer_len - disp;
             int i = 0;
             for(i; i < len; i++) {
                 char next = buffer[buf_idx % buffer_len];
                 buf_idx ++;
-                write_char(out, next);
+ //               write_char(out, next);
                 buffer[buffer_offset] = next;
                 buffer_offset = (buffer_offset + 1) % buffer_len;
             }
@@ -85,7 +85,7 @@ size_t lz10_decompress(Stream* in, Stream* out) {
                 printf("[lz10] error [next]\n");
             }
             cur_outsize ++;
-            write_char(out, next);
+//            write_char(out, next);
             buffer[buffer_offset] = (char)next;
             buffer_offset = (buffer_offset + 1) % buffer_len;
         }
@@ -93,7 +93,7 @@ size_t lz10_decompress(Stream* in, Stream* out) {
     }
     if (read_bytes < in_length) {
         if ((read_bytes ^ (read_bytes & 3)) + 4 < in_length) {
-            printf("[lz10] error ........................\n")
+            printf("[lz10] error ........................\n");
         }
     }
     return decompressed_size;

@@ -115,16 +115,16 @@ int CEBK_Bank_read(CEBK_t* cebk, FILE* file) {
 
     int i = 0;
     for(i; i < cebk->nBanks; i++) {
-        Bank_t* bank = cebk->banks[i];
+        Bank_t* bank = &(cebk->banks[i]);
         fread(&bank->nCells, 1, 2, file);
         fread(&bank->readOnlyCellInfo, 1, 2, file);
         fread(&bank->cell_offset, 1, 4, file);
 
         if(cebk->tBank == 0x01) {
-            fread(&bank.xMax, 1, 2, file);
-            fread(&bank.yMax, 1, 2, file);
-            fread(&bank.xMin, 1, 2, file);
-            fread(&bank.yMin, 1, 2, file);
+            fread(&bank->xMax, 1, 2, file);
+            fread(&bank->yMax, 1, 2, file);
+            fread(&bank->xMin, 1, 2, file);
+            fread(&bank->yMin, 1, 2, file);
         }
     }
 

@@ -3,18 +3,18 @@
 #include "cvector.h"
 
 /* Structure of the file
-* 
+*
 * Common header
-* 
+*
 * BTAF section
 * |_ Start offset
 * |_ End offset
-* 
+*
 * BTNF section
-* 
+*
 * GMIF section
 * |_ Files
-* 
+*
 */
 
 
@@ -107,7 +107,7 @@ void construct_btnf(BTNF_t* btnf, Stream* stream) {
 
     int m = 0;
     for(m; m < num_mains; m++) {
-        
+
     }
 
 }
@@ -135,13 +135,13 @@ void construct_btnf_entries(ARC_t* arc, Stream* stream, long main_tables_offset,
             //     stream->pos = cur_file->offset;
             //     char ext[4];
             //     if(cur_file->size < 4) {
-            //         read_len(stream, ext, cur_file->size); 
+            //         read_len(stream, ext, cur_file->size);
             //     } else {
             //         read_len(stream, ext, 4);
             //     }
             // }
 
-            
+
         }
 
         long pos_main = stream->pos;
@@ -151,7 +151,7 @@ void construct_btnf_entries(ARC_t* arc, Stream* stream, long main_tables_offset,
             if((id & 0x80) == 0) { // file
                 File_t* cur_file = (File_t*)malloc(sizeof(File_t));
                 cur_file->id = (u_int16_t)id_file ++;
-                
+
                 cur_file->name = (char*)malloc(id + 1);
                 read_len(stream, cur_file->name, id);
                 cur_file->name[id] = 0;
@@ -159,7 +159,7 @@ void construct_btnf_entries(ARC_t* arc, Stream* stream, long main_tables_offset,
                 cur_file->offset = arc->btaf.entries[cur_file->id].start_offset + gmif_offset;
                 cur_file->size = (arc->btaf.entries[cur_file->id].end_offset - arc->btaf.entries[cur_file->id].start_offset);
 
-                cvector_push_back(main->files, cur_file);
+    //            cvector_push_back(main->files, cur_file);
             } else {
                 Folder_t* cur_folder = (Folder_t*)malloc(sizeof(Folder_t));
 
@@ -168,17 +168,18 @@ void construct_btnf_entries(ARC_t* arc, Stream* stream, long main_tables_offset,
                 cur_folder->name[id - 0x80] = 0;
                 cur_folder->id = read_uint16(stream);
 
-                cvector_push_back(main->folders, cur_folder);
+    //            cvector_push_back(main->folders, cur_folder);
             }
             id = read_char(stream);
         }
-        cvector_push_back(arc->btnf.entries, main);
+   //     cvector_push_back(arc->btnf.entries, main);
         stream->pos = pos_main;
 }
 
-
+/*
 Folder_t Unpack(File_t file) {
 //    ARC_t* arc = alloc_arc();
+
     alloc_struct(ARC_t, arc);
     Stream* stream = make_stream(file.name);
     if(!stream) {
@@ -197,3 +198,4 @@ Folder_t Unpack(File_t file) {
 
 
 }
+*/

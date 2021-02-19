@@ -12,7 +12,7 @@ Stream* make_stream(const char* file_name) {
     Stream* stream = (Stream*)malloc(sizeof(Stream));
     if(!stream) {
         printf("[stream] error alloc failed\n");
-        return NULL:
+        return NULL;
     }
     memset(stream, 0, sizeof(Stream));
     stream->buffer = (char**)malloc(sizeof(char*) * BUFFER_COUNT_MAX);
@@ -47,7 +47,7 @@ void stream_read(Stream* stream, char* buf, int size) {
     for(i; i < size; i++) {
         int x = stream->pos / BUFFER_SIZE;
         int y = stream->pos % BUFFER_SIZE;
-        buf[i] = stream[x][y];
+        buf[i] = stream->buffer[x][y];
         stream->pos++;
     }
 }
@@ -69,5 +69,6 @@ u_int32_t read_uint32(Stream* stream) {
     return ret;
 }
 int read_len(Stream* stream, char* buf, int len) {
-    return stream_read(stream, buf, len);
+    stream_read(stream, buf, len);
+    return 0;
 }

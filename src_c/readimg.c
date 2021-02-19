@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "common.h"
-
+#include "stream.h"
 
 typedef struct {
     char* id;
@@ -49,7 +49,7 @@ void dump_rach_data(const char* data, int len) {
     printf("\n");
 }
 
-int RAHC_read(RAHC_t* rahc, FILE* file) {
+int RAHC_read(RAHC_t* rahc, Stream* stream) {
     if(!rahc) {
         return -1;
     }
@@ -100,13 +100,13 @@ int SOPC_read(SOPC_t* sopc, FILE* file) {
     return 0;
 }
 
+NCGR_t* NCGR_read(Stream* stream) {
+
+}
+
 
 NCGR_t* NCGR_read(const char* file_name) {
-    FILE* file = fopen(file_name, "rb");
-    if(!file) {
-        printf("NCGR read error, file not found, %s\n", file_name);
-        return NULL;
-    }
+
     NCGR_t* ncgr = (NCGR_t*)malloc(sizeof(NCGR_t));
     memset(ncgr, 0, sizeof(NCGR_t));
     int ret = NH_reader(&(ncgr->header), file);
@@ -148,12 +148,21 @@ void NCGR_free(NCGR_t* ncgr) {
 
 const char* file_name_default = "../test.data";
 
+union Int32{
+    char buf[4];
+    int num;
+};
+
 int main(int argc, char** argv) {
     char* file_name = NULL;
     if(argc != 2) {
         printf("input a file path\n");
     }
     file_name = file_name_default;
-    NCGR_t* ncgr = NCGR_read(file_name);
+//    NCGR_t* ncgr = NCGR_read(file_name);
+
+    union Int32 num;
+    num.num = 2080;
+    printf("%8x: [%x, %x, %x, %x]", num.num, num.buf[0], num.buf[1], num.buf[2], num.buf[3]);
     return 0;
 }

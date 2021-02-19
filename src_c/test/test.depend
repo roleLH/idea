@@ -1,0 +1,60 @@
+# depslib dependency file v1.0
+1613112619 source:c:\users\lingguihao01\desktop\player1_lz.bin\src\common.c
+	"common.h"
+
+1613558099 c:\users\lingguihao01\desktop\player1_lz.bin\src\common.h
+	<stdlib.h>
+	<stdio.h>
+
+1613116177 source:c:\users\lingguihao01\desktop\player1_lz.bin\src\readimg.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"common.h"
+
+1613549549 source:c:\users\lingguihao01\desktop\player1_lz.bin\src\gba_reader.c
+
+1613377488 source:c:\users\lingguihao01\desktop\player1_lz.bin\src\npc_data.c
+
+1613118174 source:c:\users\lingguihao01\desktop\player1_lz.bin\src\nclr.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"common.h"
+
+1613557910 source:c:\users\lingguihao01\desktop\player1_lz.bin\src\ncer.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"common.h"
+
+1613558602 source:c:\users\lingguihao01\desktop\player1_lz.bin\src\lz10.c
+	"decompress.h"
+
+1613297618 c:\users\lingguihao01\desktop\player1_lz.bin\src\decompress.h
+	"stream.h"
+
+1613558121 c:\users\lingguihao01\desktop\player1_lz.bin\src\stream.h
+	<stddef.h>
+	"common.h"
+
+1613558354 source:c:\users\lingguihao01\desktop\player1_lz.bin\src\stream.c
+	"stream.h"
+	<string.h>
+	<stdio.h>
+	<stdlib.h>
+
+1613558486 source:c:\users\lingguihao01\desktop\player1_lz.bin\src\cac.c
+	"common.h"
+	"stream.h"
+	<string.h>
+
+1613558578 source:c:\users\lingguihao01\desktop\player1_lz.bin\src\narc.c
+	"decompress.h"
+	"common.h"
+	"cvector.h"
+
+1605591039 c:\users\lingguihao01\desktop\player1_lz.bin\src\cvector.h
+	<assert.h>
+	<stdlib.h>
+
