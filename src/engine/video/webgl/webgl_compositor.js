@@ -8,7 +8,40 @@ import { isPowerOfTwo } from "./../../math/math.js";
 // import quadVertex from "./shaders/quad.vert";
 // import quadFragment from "./shaders/quad.frag";
 
+let primitiveVertex = `
+attribute vec4 vert;
+    void main(void) {
+      gl_Position = vec4(vert.xy, 0, 1);
+    }
+`;
+let primitiveFragment = `
+varying vec4 vColor;
+void main(void) {
+    gl_FragColor = vColor;
+}
+`;
+let quadVertex = `
+attribute vec2 aVertex;
+attribute vec2 aRegion;
+attribute vec4 aColor;
+uniform mat4 uProjectionMatrix;
+varying vec2 vRegion;
+varying vec4 vColor;
+void main(void) {
+     gl_Position = uProjectionMatrix * vec4(aVertex, 0.0, 1.0);
+    vColor = vec4(aColor.rgb * aColor.a, aColor.a);
+    vRegion = aRegion;
+}
+`;
+let quadFragment = `
+uniform sampler2D uSampler;
+varying vec4 vColor;
+varying vec2 vRegion;
+void main(void) {
+    gl_FragColor = texture2D(uSampler, vRegion) * vColor;
+}
 
+`;
 
 // Handy constants
 var VERTEX_SIZE = 2;

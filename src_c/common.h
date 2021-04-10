@@ -96,6 +96,14 @@ typedef struct Folder{
         free(v);    \
     } while(0)
 
+typedef struct Color{
+   u_int8_t r;
+   u_int8_t g;
+   u_int8_t b;
+   u_int8_t a;
+} Color_t;
+
+Color_t get_color(const char*, Color_t*, ColorFormat, int*);
 
 #endif // COMMON_H_
 

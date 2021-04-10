@@ -87,13 +87,13 @@ var defaultLoadingScreen = new Stage({
     onResetEvent : function () {
         var barHeight = 8;
 
-        // progress bar
-        game.world.addChild(new ProgressBar(
-            0,
-            video.renderer.getHeight() / 2,
-            video.renderer.getWidth(),
-            barHeight
-        ), 1);
+        // // progress bar
+        // game.world.addChild(new ProgressBar(
+        //     0,
+        //     video.renderer.getHeight() / 2,
+        //     video.renderer.getWidth(),
+        //     barHeight
+        // ), 1);
 
 
     }

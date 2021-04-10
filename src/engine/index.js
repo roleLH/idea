@@ -283,11 +283,41 @@ device.onReady(function () {
        boot();
 
        video.init(400, 600)
-        let rect = new Rect(20, 20, 20, 20)
+        let rect = new Rect(20, 20, 200, 200)
     //    rect.init(20, 20, 20, 20)
-        video.renderer.setColor("#00ff00")
+        video.renderer.setColor("#ff55ff")
+        video.renderer.strokeRect(22, 22, 200, 200)
         video.renderer.fill(rect)
+        
+        
+        // let font = new Text(0, 0, {font: "Arial", size: 18, fillStyle: "#777777"});
+        // font.draw(video.renderer, "你好", 10, 10)
+    //    video.renderer.update()
     }
 });
+
+var myButton = GUI_Object.extend(
+    {
+       init:function (x, y)
+       {
+          var settings = {}
+          
+          settings.framewidth = 100;
+          settings.frameheight = 50;
+          // super constructor
+          this._super(GUI_Object, "init", [x, y, settings]);
+          // define the object z order
+          this.pos.z = 4;
+       },
+    
+       // output something in the console
+       // when the object is clicked
+       onClick:function (event)
+       {
+          console.log("clicked!");
+          // don't propagate the event
+          return false;
+       }
+    });
 
 console.log("init succeed")
