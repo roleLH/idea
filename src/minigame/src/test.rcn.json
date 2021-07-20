@@ -1,19 +1,7 @@
 {
   "display_name": "test",
   "version": 4,
-  "code": [
-    "let a = 10",
-    "function init() {",
-    "    var a = 10;",
-    "}",
-    "function update() {",
-    "    a++;",
-    "}",
-    "function draw() {",
-    "  cls();",
-    "  print(0,0, a, 4);  ",
-    "}"
-  ],
+  "code": [],
   "rom": {
     "spr": [
       "0000000000000010ffffffaf88888828bbbbbb5beeeeee9ecccccc6cdddddd8d",

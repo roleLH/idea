@@ -19,9 +19,6 @@ function rcn_load_styles(styles) {
 }
 
 window.addEventListener('load', async function() {
-  await Promise.all([
-    rcn_load_styles(['game'])])
-    .then(()=>{
     fetch('./minigame/src/test.rcn.json')
     .then(function(response) {
       return response.json();
@@ -34,5 +31,5 @@ window.addEventListener('load', async function() {
         export: true,
       });
     });
-  });
+
 });

@@ -1,8 +1,7 @@
 // Raccoon virtual machine
 // This is the client that spawns the web worker
-'use strict';
 
-import rcn_vm_worker_url from "./vm_worker.js"
+import vm_core from "./vm_core.js"
 import {rcn} from "./config.js"
 import rcn_canvas from "./canvas.js"
 
@@ -110,7 +109,7 @@ rcn_vm.prototype.draw = function() {
 
 rcn_vm.prototype.reset = function() {
   this.kill();
-  this.worker = new Worker(rcn_vm_worker_url);
+  this.worker = new vm_core(this);
   const vm = this;
   this.worker.onmessage = function(e) { vm.onmessage(e); }
   this.audio = null;

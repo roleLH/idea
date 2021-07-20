@@ -1,4 +1,6 @@
 
+
+  import game_code from "./game_code.js";
 const rcn = {
     rom_size: 0x5000, // = 20KiB
     ram_size: 0x8000, // = 32KiB
@@ -44,4 +46,6 @@ const rcn = {
     gamepad_layout_abxy: 1,
   };
 
+
+  rcn.game_code = game_code;
   export {rcn};

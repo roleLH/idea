@@ -1,10 +1,12 @@
 // Raccoon virtual machine
 // This is the worker script that gets executed inside a web worker
-'use strict';
 
 import {rcn} from "./config.js"
 
-function rcn_vm_worker_function(rcn) {
+let global = window;
+
+function rcn_vm_worker_function(vm) {
+
   const rcn_ram_size = rcn.ram_size;
   const rcn_mem_palette_offset = rcn.mem_palette_offset;
   const rcn_mem_sound_offset = rcn.mem_sound_offset;
@@ -21,23 +23,20 @@ function rcn_vm_worker_function(rcn) {
   const ram_view = new DataView(ram_buffer);
   const ram = new Uint8Array(ram_buffer);
 
+
+  this.vm = vm;
   // Keep parts of the API local
   const _Array = Array;
   const _console = console;
   const _Function = Function;
   const _Math = Math;
   const _Object = Object;
-  const _postMessage = postMessage;
+  const _postMessage = function(msg) {
+    vm.onmessage({data:msg})
+  };
   const _self = self;
   const _String = String;
   const game_code = rcn.game_code;
-
-  // Remove parts of the API
-  Object.getOwnPropertyNames(_self).forEach(function(key) {
-    if(key != 'onmessage') {
-      delete _self[key];
-    }
-  });
 
   // Local helper functions
   const sprite_pixel_index = function(x, y) {
@@ -68,25 +67,25 @@ function rcn_vm_worker_function(rcn) {
   }
 
   // Raccoon math API
-  const _flr = flr = _Math.floor;
-  const _ceil = ceil = _Math.ceil;
-  const _abs = abs = _Math.abs;
-  const _sign = sign = _Math.sign;
-  const _max = max = _Math.max;
-  const _min = min = _Math.min;
-  mid = function(a, b, c) {
-    return _max(_min(a, b), _min(_max(a, b), c));
+  global.flr = _Math.floor;
+  global.ceil = _Math.ceil;
+  global.abs = _Math.abs;
+  global.sign = _Math.sign;
+  global.max = _Math.max;
+  global.min = _Math.min;
+  global.mid = function(a, b, c) {
+    return max(min(a, b), min(max(a, b), c));
   }
-  sqrt = _Math.sqrt;
-  rnd = r = function(x) {
+  global.sqrt = _Math.sqrt;
+  global.rnd = function(x) {
     return x ? _Math.floor(_Math.random()*x) : _Math.random();
   }
-  sin = _Math.sin;
-  cos = _Math.cos;
-  atan2 = _Math.atan2;
+  global.sin = _Math.sin;
+  global.cos = _Math.cos;
+  global.atan2 = _Math.atan2;
 
   // Raccoon rendering API
-  const _pset = pset = p = function(x, y, c) {
+  global.pset = function(x, y, c) {
     x -= cam_x();
     y -= cam_y();
     if(x < 0 || x >= 128 || y < 0 || y >= 128) {
@@ -94,7 +93,7 @@ function rcn_vm_worker_function(rcn) {
     }
     pset_internal_safe(x, y, _palmget(c));
   }
-  pget = function(x, y) {
+  global.pget = function(x, y) {
     if(x < 0 || x >= 128 || y < 0 || y >= 128) {
       return 0;
     }
@@ -105,7 +104,7 @@ function rcn_vm_worker_function(rcn) {
       return pixel >> 4;
     }
   }
-  palset = function(i, r, g, b) {
+  global.palset = function(i, r, g, b) {
     ram[rcn_mem_palette_offset+i*4+0] = r;
     ram[rcn_mem_palette_offset+i*4+1] = g;
     ram[rcn_mem_palette_offset+i*4+2] = b;
@@ -113,32 +112,32 @@ function rcn_vm_worker_function(rcn) {
   const _palmget = function(c) {
     return ram[rcn_mem_palette_offset+c*4+3] & 0xf;
   }
-  palm = function(src, dst) {
+  global.palm = function(src, dst) {
     ram[rcn_mem_palette_offset+src*4+3] = (ram[rcn_mem_palette_offset+src*4+3] & 0xf0) | dst;
   }
   const _paltget = function(c) {
     return (ram[rcn_mem_palette_offset+c*4+3] >> 7) != 0;
   }
-  palt = function(c, t) {
+  global.palt = function(c, t) {
     ram[rcn_mem_palette_offset+c*4+3] = (ram[rcn_mem_palette_offset+c*4+3] & 0x0f) | (t ? 0x80 : 0x00);
   }
-  cls = c = function(c = 0) { // Default color is 0
+  global.cls = function(c = 0) { // Default color is 0
     c |= c<<4; // Left and right pixel to same color
     ram.fill(c, rcn_mem_screen_offset, rcn_mem_screen_offset + rcn_mem_screen_size);
   }
-  cam = function(x, y) {
+  global.cam = function(x, y) {
     ram_view.setInt16(rcn.mem_cam_offset + 0, x);
     ram_view.setInt16(rcn.mem_cam_offset + 2, y);
   }
-  const _spr = spr = function(n, x, y, ow = 1.0, oh = 1.0, fx = false, fy = false) {
+  global.spr = function(n, x, y, ow = 1.0, oh = 1.0, fx = false, fy = false) {
     x -= cam_x();
     y -= cam_y();
 
     // Clip
-    const iw = _max(0, -x / 8);
-    const ih = _max(0, -y / 8);
-    const w = _min(ow, (128 - x) / 8);
-    const h = _min(oh, (128 - y) / 8);
+    const iw = max(0, -x / 8);
+    const ih = max(0, -y / 8);
+    const w = min(ow, (128 - x) / 8);
+    const h = min(oh, (128 - y) / 8);
 
     // Early exit if nothing to draw
     if(w <= iw || h <= ih) {
@@ -168,24 +167,24 @@ function rcn_vm_worker_function(rcn) {
       }
     }
   }
-  const _fget = fget = function(n, f) {
+  global.fget = function(n, f) {
     const flags = ram[rcn.mem_spriteflags_offset + n];
     return f !== undefined ? ((flags & (1 << f)) != 0) : flags;
   }
-  fset = function(n, f, v) {
+  global.fset = function(n, f, v) {
     const i = rcn.mem_spriteflags_offset + n;
     ram[i] = v !== undefined ? (ram[i] & ~(1 << f)) | (v ? (1 << f) : 0) : f;
   }
-  const _mget = mget = function(celx, cely) {
+  global.mget = function(celx, cely) {
     return ram[rcn.mem_map_offset + (cely << 7) + (celx << 0)];
   }
-  mset = function(celx, cely, n) {
+  global.mset = function(celx, cely, n) {
     ram[rcn.mem_map_offset + (cely << 7) + (celx << 0)] = n;
   }
-  map = function(celx, cely, sx, sy, celw, celh, layer = 0xff) {
+  global.map = function(celx, cely, sx, sy, celw, celh, layer = 0xff) {
     for(let x = 0; x < celw; x++) {
       for(let y = 0; y < celh; y++) {
-        _spr(_mget(celx + x, cely + y), sx + (x << 3), sy + (y << 3));
+        spr(_mget(celx + x, cely + y), sx + (x << 3), sy + (y << 3));
       }
     }
   }
@@ -217,9 +216,9 @@ function rcn_vm_worker_function(rcn) {
     '\ue00f':[2,-1,3,-1,4,-1,1,0,3,0,5,0,0,1,1,1,3,1,5,1,6,1,0,2,1,2,5,2,6,2,0,3,1,3,2,3,4,3,5,3,6,3,1,4,2,4,4,4,5,4,2,5,3,5,4,5,8], // Gamepad fourth button
   };
   const font_ys = _Object.values(font).map(a => a.filter((v, i) => i&1)).flat();
-  const font_min_y = font_ys.reduce((a, b) => _min(a, b));
-  const font_max_y = font_ys.reduce((a, b) => _max(a, b));
-  print = function(x, y, text, c) {
+  const font_min_y = font_ys.reduce((a, b) => min(a, b));
+  const font_max_y = font_ys.reduce((a, b) => max(a, b));
+  global.print = function(x, y, text, c) {
     x -= cam_x();
     y -= cam_y();
     c = _palmget(c);
@@ -248,7 +247,7 @@ function rcn_vm_worker_function(rcn) {
         }
       }
       x += advance;
-      max_width = _max(max_width, x - ox);
+      max_width = max(max_width, x - ox);
     }
     return max_width;
   }
@@ -268,19 +267,19 @@ function rcn_vm_worker_function(rcn) {
   }
   const hline_safe = function(x, y, w, c) {
     if(y >= 0 && y < 128) {
-      w += _min(0, x);
-      x = _max(0, x);
-      w -= _max(128, x + w) - 128;
+      w += min(0, x);
+      x = max(0, x);
+      w -= max(128, x + w) - 128;
       if(w > 0) {
         hline(x, y, w, c);
       }
     }
   }
-  line = l = function(x0, y0, x1, y1, c) {
-    x0 = _flr(x0) + 0.5;
-    x1 = _flr(x1) + 0.5;
-    y0 = _flr(y0) + 0.5;
-    y1 = _flr(y1) + 0.5;
+  global.line = function(x0, y0, x1, y1, c) {
+    x0 = flr(x0) + 0.5;
+    x1 = flr(x1) + 0.5;
+    y0 = flr(y0) + 0.5;
+    y1 = flr(y1) + 0.5;
 
     x0 -= cam_x();
     y0 -= cam_y();
@@ -288,11 +287,11 @@ function rcn_vm_worker_function(rcn) {
     y1 -= cam_y();
     c = _palmget(c);
 
-    const dx = _flr(x1 - x0);
-    const dy = _flr(y1 - y0);
+    const dx = flr(x1 - x0);
+    const dy = flr(y1 - y0);
     if(dx == 0 && dy == 0) {
       pset_internal_safe(x0, y0, c);
-    } else if(_abs(dx) >= _abs(dy)) {
+    } else if(abs(dx) >= abs(dy)) {
       if(x1 < x0) {
         let tmp = x1;
         x1 = x0;
@@ -324,7 +323,7 @@ function rcn_vm_worker_function(rcn) {
       }
     }
   }
-  rect = function(x, y, w, h, c) {
+  global.rect = function(x, y, w, h, c) {
     x -= cam_x();
     y -= cam_y();
     c = _palmget(c);
@@ -342,7 +341,7 @@ function rcn_vm_worker_function(rcn) {
       pset_internal_safe(x + w - 1, y + i, c);
     }
   }
-  rectfill = function(x, y, w, h, c) {
+  global.rectfill = function(x, y, w, h, c) {
     x -= cam_x();
     y -= cam_y();
 
@@ -350,12 +349,12 @@ function rcn_vm_worker_function(rcn) {
     y <<= 0;
     w <<= 0;
     h <<= 0;
-    w += _min(0, x);
-    x = _max(0, x);
-    h += _min(0, y);
-    y = _max(0, y);
-    w -= _max(128, x + w) - 128;
-    h -= _max(128, y + h) - 128;
+    w += min(0, x);
+    x = max(0, x);
+    h += min(0, y);
+    y = max(0, y);
+    w -= max(128, x + w) - 128;
+    h -= max(128, y + h) - 128;
     if(w > 0 && h > 0) {
       c = _palmget(c);
       for(let i = 0; i < h; i++) {
@@ -363,7 +362,7 @@ function rcn_vm_worker_function(rcn) {
       }
     }
   }
-  circ = function(x, y, r, c) {
+  global.circ = function(x, y, r, c) {
     x -= cam_x();
     y -= cam_y();
     c = _palmget(c);
@@ -396,7 +395,7 @@ function rcn_vm_worker_function(rcn) {
       }
     }
   }
-  circfill = function(x, y, r, c) {
+  global.circfill = function(x, y, r, c) {
     x -= cam_x();
     y -= cam_y();
     c = _palmget(c);
@@ -446,7 +445,7 @@ function rcn_vm_worker_function(rcn) {
       const period = ram[snd_offset + 0] + 4; // In audio frames
 
       const state_time = ram_view.getUint16(state_ram_offset + 3);
-      const next_note_index = _ceil(state_time / period);
+      const next_note_index = ceil(state_time / period);
       const next_note_time = next_note_index * period;
       if(state_time <= next_note_time && next_note_time < state_time + 4) {
         // Next note should be triggered in the next frame
@@ -476,7 +475,7 @@ function rcn_vm_worker_function(rcn) {
       ram_view.setUint16(state_ram_offset + 3, state_time + 4);
     }
   }
-  const _sfx = sfx = function(n, channel = -1, offset = 0, length = 32) {
+  global.sfx = function(n, channel = -1, offset = 0, length = 32) {
     if(channel < 0) {
       while(++channel < 3 && ram[rcn_mem_soundstate_offset + channel * 5 + 2] != 0);
     }
@@ -529,7 +528,7 @@ function rcn_vm_worker_function(rcn) {
           _sfx(track_sound, track);
           const sound_offset = rcn_mem_sound_offset + track_sound * 66;
           const period = ram[sound_offset + 0] + 4;
-          max_time = _max(max_time, period * 32);
+          max_time = max(max_time, period * 32);
         }
       }
       _mus_state.max_time = max_time;
@@ -545,7 +544,7 @@ function rcn_vm_worker_function(rcn) {
       }
     }
   }
-  mus = function(n) {
+  global.mus = function(n) {
     if(_mus_state.is_playing) {
       _mus_stop();
     }
@@ -558,14 +557,14 @@ function rcn_vm_worker_function(rcn) {
   }
 
   // Raccoon input API
-  btn = b = function(i, p = 0) { // First player by default
+  global.btn = function(i, p = 0) { // First player by default
     return (ram[rcn_mem_gamepad_offset + p] & (1 << i)) != 0;
   }
-  btnp = function(i, p = 0) { // First player by default
+  global.btnp = function(i, p = 0) { // First player by default
     return (ram[rcn_mem_gamepad_offset + p] & (1 << i)) != 0 &&
       (ram[rcn_mem_gamepad_offset + p + rcn.gamepad_count] & (1 << i)) == 0;
   }
-  btns = function(i, p = 0) {
+  global.btns = function(i, p = 0) {
     const layout = ram[rcn_mem_gamepad_offset + p + rcn.gamepad_count * 2];
     if(layout == rcn.gamepad_layout_abxy) {
       i += 8;
@@ -574,33 +573,33 @@ function rcn_vm_worker_function(rcn) {
   }
 
   // Raccoon memory API
-  memcpy = function(dst, src, len) {
+  global.memcpy = function(dst, src, len) {
     ram.copyWithin(dst, src, src + len);
   }
-  memset = function(dst, val, len) {
+  global.memset = function(dst, val, len) {
     ram.fill(val, dst, dst + len);
   }
-  read = function(addr) {
+  global.read = function(addr) {
     return ram[addr];
   }
-  read16 = function(addr) {
+  global.read16 = function(addr) {
     return ram_view.getInt16(addr);
   }
-  read32 = function(addr) {
+  global.read32 = function(addr) {
     return ram_view.getInt32(addr);
   }
-  write = function(addr, val) {
+  global.write = function(addr, val) {
     ram[addr] = val;
   }
-  write16 = function(addr, val) {
+  global.write16 = function(addr, val) {
     ram_view.setInt16(addr, val);
   }
-  write32 = function(addr, val) {
+  global.write32 = function(addr, val) {
     ram_view.setInt32(addr, val);
   }
 
   // Raccoon debug API
-  debug = function(msg) {
+  global.debug = function(msg) {
     _postMessage({
       type: 'debug',
       msg: msg,
@@ -613,58 +612,50 @@ function rcn_vm_worker_function(rcn) {
     if(typeof user_func === 'undefined') {
       return;
     }
-    try {
-//      user_func();
-      
-      init = game_code.init;
-      update = game_code.update;
-      draw = game_code.draw;
-    } catch(e) {
-      let stack = [];
-      if(e.stack) {
-        stack = (new _String(e.stack)).split('\n')
-          .map(function(line) {
-            const match =
-              line.match(_firefox_stack_line_exp) ||
-              line.match(_chrome_stack_line_exp);
-            return match && {
-              func: match[1],
-              line: match[2] - 2, // Line numbers are off by 2 for some reason
-            };
-          })
-          .filter(l => l && !['onmessage', '_execute_user_func'].includes(l.func));
-        for(let i = 0; i < stack.length - 1; i++) {
-          if(stack[i].func == '__'+stack[i+1].func) {
-            stack[i].func = stack[i+1].func;
-            stack.splice(i+1, 1);
-          }
-        }
-      }
-      _postMessage({
-        type: 'error',
-        message: e.message,
-        stack: stack,
-        line: stack.length > 0 && stack[0].line || e.lineNumber - 2,
-      });
-    }
+       user_func();
+    // try {
+    // } catch(e) {
+    //   let stack = [];
+    //   if(e.stack) {
+    //     stack = (new _String(e.stack)).split('\n')
+    //       .map(function(line) {
+    //         const match =
+    //           line.match(_firefox_stack_line_exp) ||
+    //           line.match(_chrome_stack_line_exp);
+    //         return match && {
+    //           func: match[1],
+    //           line: match[2] - 2, // Line numbers are off by 2 for some reason
+    //         };
+    //       })
+    //       .filter(l => l && !['onmessage', '_execute_user_func'].includes(l.func));
+    //     for(let i = 0; i < stack.length - 1; i++) {
+    //       if(stack[i].func == '__'+stack[i+1].func) {
+    //         stack[i].func = stack[i+1].func;
+    //         stack.splice(i+1, 1);
+    //       }
+    //     }
+    //   }
+    //   _postMessage({
+    //     type: 'error',
+    //     message: e.message,
+    //     stack: stack,
+    //     line: stack.length > 0 && stack[0].line || e.lineNumber - 2,
+    //   });
+    // }
   }
 
   // User-defined functions
-  init = undefined;
-  update = undefined;
-  nupdate = undefined;
-  draw = undefined;
+  let init = undefined;
+  let update = undefined;
+  let nupdate = undefined;
+  let draw = undefined;
 
   onmessage = function(e) {
     switch(e.data.type) {
       case 'code':
-        let code = e.data.code;
-        // Allow function thing() {} syntax to work as expected
-        // by replacing it with thing = function() {}
-        // Also create an indirection to allow hot reload to work
-        // even when function has been saved somewhere as a value
-        code = code.replace(/function (\w+)(\s*)(\([^\)]*\))/gim, '$1 = function$3 { return __$1$3; }; __$1 = function$3');
-        _execute_user_func(new _Function(code));
+        init = game_code.init;
+        update = game_code.update;
+        draw = game_code.draw;
         break;
       case 'init': _execute_user_func(init); break;
       case 'update':
@@ -685,10 +676,12 @@ function rcn_vm_worker_function(rcn) {
         break;
     }
   }
+  this.postMessage = function(msg) {
+    onmessage({data: msg})
+  }
+  this.terminate = function() {}
+  return this;
 }
 
-const rcn_vm_worker_url = URL.createObjectURL(new Blob(
-  ['('+rcn_vm_worker_function.toString()+')('+JSON.stringify(rcn)+')'],
-  {type: 'text/javascript'}));
 
-export default rcn_vm_worker_url
+export default rcn_vm_worker_function
